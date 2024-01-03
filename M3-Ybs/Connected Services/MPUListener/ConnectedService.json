@@ -1,0 +1,16 @@
+{
+  "ExtendedData": {
+    "inputs": [
+      "net.tcp://10.3.156.110:8733/M3YBSCommunication/M3YBSCommunication"
+    ],
+    "collectionTypes": [
+      "System.Array",
+      "System.Collections.Generic.Dictionary`2"
+    ],
+    "namespaceMappings": [
+      "*, MPUListener"
+    ],
+    "targetFramework": "net7.0",
+    "typeReuseMode": "All"
+  }
+}
