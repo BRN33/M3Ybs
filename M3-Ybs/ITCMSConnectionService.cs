@@ -32,7 +32,7 @@ namespace M3_Ybs
             //throw new NotImplementedException();
             M3_Ybs.GlobalVariablesDTO.A2_DoorStatus = A2VehicleDoorStatus;
         }
-        public void AnnouncementStatusChanged(MPUListener.EnumsAnnouncement statusAnons)
+        public void AnnouncementStatusChanged(MPUListener.AnnouncementDTO zozan)
         {
            
 
@@ -67,8 +67,8 @@ namespace M3_Ybs
         public void EVR_ICountDistChanged(int EVR_ICountDist)
         {
             double tako = Convert.ToDouble(EVR_ICountDist);
-            M3_Ybs.GlobalVariablesDTO.Discounter = Convert.ToInt32(tako*GlobalVariablesDTO.takoKatSayisi);
-
+            //M3_Ybs.GlobalVariablesDTO.Discounter = Convert.ToInt32(tako*GlobalVariablesDTO.takoKatSayisi);
+            M3_Ybs.GlobalVariablesDTO.Discounter = Convert.ToInt32(tako);
             //Debug.WriteLine(EVR_ICountDist);
         }
 

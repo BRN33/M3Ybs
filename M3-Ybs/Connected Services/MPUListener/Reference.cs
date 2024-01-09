@@ -256,6 +256,211 @@ namespace MPUListener
         CONNECTION_LOST = 2,
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="AnnouncementDTO", Namespace="http://schemas.datacontract.org/2004/07/M3YBSCommunication")]
+    public partial struct AnnouncementDTO
+    {
+        
+        private MPUListener.EnumsAnnouncementType announcementTypeField;
+        
+        private MPUListener.EnumsMetroLines metroLinesField;
+        
+        private MPUListener.EnumsStationName stationNameField;
+        
+        private MPUListener.EnumsAnnouncement statusField;
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public MPUListener.EnumsAnnouncementType announcementType
+        {
+            get
+            {
+                return this.announcementTypeField;
+            }
+            set
+            {
+                this.announcementTypeField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public MPUListener.EnumsMetroLines metroLines
+        {
+            get
+            {
+                return this.metroLinesField;
+            }
+            set
+            {
+                this.metroLinesField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public MPUListener.EnumsStationName stationName
+        {
+            get
+            {
+                return this.stationNameField;
+            }
+            set
+            {
+                this.stationNameField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public MPUListener.EnumsAnnouncement status
+        {
+            get
+            {
+                return this.statusField;
+            }
+            set
+            {
+                this.statusField = value;
+            }
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Enums.AnnouncementType", Namespace="http://schemas.datacontract.org/2004/07/M3YBSCommunication")]
+    public enum EnumsAnnouncementType : int
+    {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Station = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Approach = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Next = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Interchange = 3,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Special = 4,
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Enums.MetroLines", Namespace="http://schemas.datacontract.org/2004/07/M3YBSCommunication")]
+    public enum EnumsMetroLines : int
+    {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        M3 = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        M9 = 1,
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Enums.StationName", Namespace="http://schemas.datacontract.org/2004/07/M3YBSCommunication")]
+    public enum EnumsStationName : int
+    {
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        KayaşehirMerkez = 0,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        TopluKonutlar = 1,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ŞehirHastanesi = 2,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Onurkent = 3,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        BaşakşehirMetrokent = 4,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        BaşakKonutları = 5,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Siteler = 6,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        TurgutÖzal = 7,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        İkitelliSanayi = 8,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        İSTOÇ = 9,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Mahmutbey = 10,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Yenimahalle = 11,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Kirazlı = 12,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        MollaGürani = 13,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Yıldıztepe = 14,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        İlkyuva = 15,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Haznedar = 16,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Bakırköyİncirli = 17,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ÖzgürlükMeydanı = 18,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        BakırköyİDO = 19,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Ataköy = 20,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Yenibosna = 21,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ÇobançeşmeKuyumcukent = 22,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        İhlasYuva = 23,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        DoğuSanayi = 24,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        MimarSinan = 25,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        OnBeşTemmuz = 26,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        HalkalıCaddesi = 27,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        AtatürkMahallesi = 28,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Bahariye = 29,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        MASKO = 30,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        ZiyaGökalpMahallesi = 31,
+        
+        [System.Runtime.Serialization.EnumMemberAttribute()]
+        Olimpiyat = 32,
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Runtime.Serialization.DataContractAttribute(Name="Enums.Announcement", Namespace="http://schemas.datacontract.org/2004/07/M3YBSCommunication")]
     public enum EnumsAnnouncement : int
@@ -298,7 +503,7 @@ namespace MPUListener
         System.Threading.Tasks.Task<MPUListener.MPU> AddOrFindInRedundancyMPUAsync(MPUListener.EnumsCommunication communicationMPU);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IM3YBSCommunication/AnnouncementStatus")]
-        System.Threading.Tasks.Task AnnouncementStatusAsync(MPUListener.EnumsAnnouncement status);
+        System.Threading.Tasks.Task AnnouncementStatusAsync(MPUListener.AnnouncementDTO announcementDTO);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
@@ -348,7 +553,7 @@ namespace MPUListener
         void DD_CMileageKm_1Changed(int DD_CMileageKm_1);
         
         [System.ServiceModel.OperationContractAttribute(IsOneWay=true, Action="http://tempuri.org/IM3YBSCommunication/AnnouncementStatusChanged")]
-        void AnnouncementStatusChanged(MPUListener.EnumsAnnouncement status);
+        void AnnouncementStatusChanged(MPUListener.AnnouncementDTO announcementDTO);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
@@ -441,9 +646,9 @@ namespace MPUListener
             return base.Channel.AddOrFindInRedundancyMPUAsync(communicationMPU);
         }
         
-        public System.Threading.Tasks.Task AnnouncementStatusAsync(MPUListener.EnumsAnnouncement status)
+        public System.Threading.Tasks.Task AnnouncementStatusAsync(MPUListener.AnnouncementDTO announcementDTO)
         {
-            return base.Channel.AnnouncementStatusAsync(status);
+            return base.Channel.AnnouncementStatusAsync(announcementDTO);
         }
         
         public virtual System.Threading.Tasks.Task OpenAsync()
@@ -814,12 +1019,12 @@ namespace MPUListener
             this.results = results;
         }
         
-        public MPUListener.EnumsAnnouncement status
+        public MPUListener.AnnouncementDTO announcementDTO
         {
             get
             {
                 base.RaiseExceptionIfNecessary();
-                return ((MPUListener.EnumsAnnouncement)(this.results[0]));
+                return ((MPUListener.AnnouncementDTO)(this.results[0]));
             }
         }
     }
@@ -1127,10 +1332,10 @@ base(callbackInstance)
                             DD_CMileageKm_1});
             }
             
-            public void AnnouncementStatusChanged(MPUListener.EnumsAnnouncement status)
+            public void AnnouncementStatusChanged(MPUListener.AnnouncementDTO announcementDTO)
             {
                 this.proxy.OnAnnouncementStatusChangedReceived(new object[] {
-                            status});
+                            announcementDTO});
             }
         }
     }

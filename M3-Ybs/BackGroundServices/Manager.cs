@@ -5,6 +5,7 @@ using System.ServiceModel;
 using System.Text;
 using MPUListener;
 using Newtonsoft.Json;
+using Windows.Services.Maps;
 
 namespace M3_Ybs.BackGroundServices
 {
@@ -64,6 +65,8 @@ namespace M3_Ybs.BackGroundServices
 
 
         }
+
+        #region   WCF Servisi ile baglantı kuran ilk metot
         public static async Task StartMPUServiceClient() // MPU  server ile baglantı baslatma
         {
 
@@ -113,7 +116,7 @@ namespace M3_Ybs.BackGroundServices
                 }
             }
         }
-
+        #endregion
 
         #region    BackgroundServis olarak ilk calısan Metot
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)// Backgroundservice ilk çalışan metodu
@@ -193,6 +196,20 @@ namespace M3_Ybs.BackGroundServices
                         Stations currentStation = stationData[i];//Suanki istasyon
                         Stations nextStation = stationData[i + 1];//Bir sonraki istasyon
                                                                   //Stations nextStation;//Bir sonraki istasyon
+
+                        //Stations s = new Stations();
+
+                        //s = stationData[i + 1];
+
+
+                        //nextStation.id = s.id;
+                        //nextStation.istasyonAdi = s.istasyonAdi;
+                        //nextStation.istasyonBoyT1 = s.istasyonBoyT1;
+                        //nextStation.istasyonBoyT2 = s.istasyonBoyT2;
+                        //nextStation.istasyonMesafeT1 = s.istasyonMesafeT1;
+                        //nextStation.istasyonMesafeT2 = s.istasyonMesafeT2;
+
+
                         Stations.CurrentStation = Stations.CurrentStation;
 
                         while (!IsAtNextStation(currentStation, nextStation, GlobalVariablesDTO.Discounter))
@@ -239,29 +256,7 @@ namespace M3_Ybs.BackGroundServices
                                 }
 
                                 //TCMS ile baglantı kopması durumunda calısıcak 
-                                if (GlobalVariablesDTO.m_client.State == CommunicationState.Closed || GlobalVariablesDTO.m_client.State == CommunicationState.Faulted)
-                                {
-                                    Logging.WriteLog(DateTime.Now.ToString(), "Message", "StackTrace", "TargetSite.ToString()", "Tcms ile Ag baglantı koptu Tekrar baglanmayacalsıyor");
-                                    Debug.WriteLine("***********---------HATATTTTATAAAAAAAA----------***************");
-                                    //Thread.Sleep(1000);
-                                    Debug.WriteLine("***********---------TEKRAR BAGLANMAYA CALISIYOR----------***************");
-                                    GlobalVariablesDTO.m_client.UnsubscribeAsync();
-                                    GlobalVariablesDTO.m_client.Abort();
-
-
-                                    InstanceContext context = new InstanceContext(new TCMSConnectionService());
-
-                                    //GlobalVariablesDTO.m_client.InnerChannel.OperationTimeout = TimeSpan.MaxValue;//Baglantı oldugu sürece devam eder
-
-                                    GlobalVariablesDTO.m_client = new MPUListener.M3YBSCommunicationClient(context);
-
-                                    GlobalVariablesDTO.m_client?.SubscribeAsync();
-
-                                    IsConnected = true;
-
-                                    Debug.WriteLine("***********---------TEKRAR BAGLANTI SAGLANDI----------***************");
-
-                                }
+                                CheckConnection();
 
 
                             }
@@ -288,31 +283,11 @@ namespace M3_Ybs.BackGroundServices
                     //    // Tako degeri gelene kadar bekliyoruz
                     //    Thread.Sleep(1000); // 1 saniye bekleyin 
 
+
+
                     //    //Eger bu sürede TCMS ile baglantı sorunu olursa tekrar baglantı kuralım
 
-                    if (GlobalVariablesDTO.m_client.State == CommunicationState.Closed || GlobalVariablesDTO.m_client.State == CommunicationState.Faulted)
-                    {
-                        Logging.WriteLog(DateTime.Now.ToString(), "Message", "StackTrace", "TargetSite.ToString()", "Tcms ile Ag baglantı koptu Tekrar baglanmayacalsıyor");
-                        Debug.WriteLine("***********---------HATATTTTATAAAAAAAA----------***************");
-                        //Thread.Sleep(1000);
-                        Debug.WriteLine("***********---------TEKRAR BAGLANMAYA CALISIYOR----------***************");
-                        GlobalVariablesDTO.m_client.UnsubscribeAsync();
-                        GlobalVariablesDTO.m_client.Abort();
-
-
-                        InstanceContext context = new InstanceContext(new TCMSConnectionService());
-
-                        //GlobalVariablesDTO.m_client.InnerChannel.OperationTimeout = TimeSpan.MaxValue;//Baglantı oldugu sürece devam eder
-
-                        GlobalVariablesDTO.m_client = new MPUListener.M3YBSCommunicationClient(context);
-
-                        GlobalVariablesDTO.m_client?.SubscribeAsync();
-
-                        IsConnected = true;
-
-                        Debug.WriteLine("***********---------TEKRAR BAGLANTI SAGLANDI----------***************");
-
-                    }
+                    CheckConnection();
 
 
                     //}
@@ -338,11 +313,7 @@ namespace M3_Ybs.BackGroundServices
                     Debug.WriteLine("\"Tcms ile Ag baglantısını kotnrol edin\"");
 
 
-                    if (CheckConnection())
-                    {
-                        Debug.WriteLine("Tcms ile Ag baglantısı yeniden sağlandı.");
-                        break;
-                    }
+                    CheckConnection();
 
                 }
             }
@@ -399,37 +370,46 @@ namespace M3_Ybs.BackGroundServices
                 // Bir sonraki istasyona kadar kalan mesafe
                 //int remainingDistance = (currentDistance + nextDistance) - (takoValue); // Bir sonraki istasyon mesafesi ve aradaki mesafenin toplamından tako degerini çıkarıyoruz
 
-                int remainingDistance = Math.Max((sumDistance) - (takoValue), 0);
-                int stationDistance = Math.Max((nextDistance) - (takoValue), 0); //İstasyon mesafesinden tako degerini çıkarıp anonsu nerede yapacagını hesaplamak icin
-                                                                                 //int stationDistance = nextDistance - takoValue;
+                //int remainingDistance = Math.Max((sumDistance) - (takoValue), 0);
+                //int stationDistance = Math.Max((nextDistance) - (takoValue), 0); //İstasyon mesafesinden tako degerini çıkarıp anonsu nerede yapacagını hesaplamak icin
+                //int stationDistance = nextDistance - takoValue;
+
+                int remainingDistance = (sumDistance) - (takoValue);
+                int stationDistance = (nextDistance) - (takoValue);
 
 
                 GlobalVariablesDTO.sendReaminingDistance = remainingDistance;//Apı ile Makiniste gönderilen kalan mesafe
                 GlobalVariablesDTO.sendDistance = sumDistance;//Apı ile Makiniste gönderilen toplam mesafe
 
 
-                if ((80 < stationDistance) && (stationDistance <= GlobalVariablesDTO.istasyondanCıkısMesafesi))//istasyondan çıktıktan 10 metre sonra
+                if ((80 < stationDistance) && (stationDistance <= (nextDistance - GlobalVariablesDTO.istasyondanCıkısMesafesi)))//istasyondan çıktıktan 10 metre sonra
                 {
 
-
+                    Stations.CurrentStation = nextStation.istasyonAdi;
 
                     if (!AnonsCounter)
                     {
                         AnonsCounter = true;
-                        //Task lele = GlobalVariablesDTO.m_client.AnnouncementStatusAsync(EnumsAnnouncement.Play);//MPU ya ses kanalı acması icin 
-                        //lele.Wait();
-                        //Task.Run(async () =>
-                        //{
-                        //    await GlobalVariablesDTO.m_client.AnnouncementStatusAsync(EnumsAnnouncement.Play);
-                        //    // Buraya gelen kod, AnnouncementStatusAsync tamamlandığında devam eder.
-                        //}).Wait();
-                        GlobalVariablesDTO.m_client.AnnouncementStatusAsync(EnumsAnnouncement.Play);
+                  
+
+                        MPUListener.AnnouncementDTO announcementDTO = new MPUListener.AnnouncementDTO();
+
+                        if (GlobalVariablesDTO.metroName=="M3")
+                            announcementDTO.metroLines = EnumsMetroLines.M3;
+                        else
+                            announcementDTO.metroLines = EnumsMetroLines.M9;
+
+                        announcementDTO.status = EnumsAnnouncement.Play;
+                        announcementDTO.announcementType = EnumsAnnouncementType.Approach;
+                        announcementDTO.stationName = ConvertStationNameStringToEnum(Stations.CurrentStation);
+
+                        GlobalVariablesDTO.m_client.AnnouncementStatusAsync(announcementDTO);
 
                     }
 
 
                     //Debug.WriteLine($"Gelecek İstasyon Anonsu Yapılıyorrr :{nextStation.istasyonAdi}");
-                    Stations.CurrentStation = nextStation.istasyonAdi;
+                    
 
 
 
@@ -440,7 +420,7 @@ namespace M3_Ybs.BackGroundServices
 
                         Debug.WriteLine("Yaklasımmmmm ----- Anonsumuzzzzzz", GlobalVariablesDTO.metroName, Stations.CurrentStation, "İkinci   anonsuuu", Stations.CurrentStation.ToString());
 
-                        SendHttpPostAnons(GlobalVariablesDTO.metroName, "Station", Stations.CurrentStation, "yaklasim.wav");
+                        //SendHttpPostAnons(GlobalVariablesDTO.metroName, "Station", Stations.CurrentStation, "yaklasim.wav");
                         //SendHttpPostAnons("M3", "Station", Stations.CurrentStation, "yaklasim.wav");
 
                         IsSendAnonsPost = true;
@@ -451,7 +431,7 @@ namespace M3_Ybs.BackGroundServices
                     //AnonsCounter = false;
                 }
 
-                else if ((50 < remainingDistance) && (remainingDistance <= GlobalVariablesDTO.istasyonaKalanMesafe))//istasyondan cıktıktan 200 metre sonra gelecek istasyon anonsu
+                else if ((60 < remainingDistance) && (remainingDistance <= GlobalVariablesDTO.istasyonaKalanMesafe))//istasyondan cıktıktan 200 metre sonra gelecek istasyon anonsu
                 {
 
                     Stations.CurrentStation = Stations.CurrentStation;
@@ -465,15 +445,21 @@ namespace M3_Ybs.BackGroundServices
                     if (!AnonsCounter2)
                     {
                         AnonsCounter2 = true;
-                        //Task lolo = GlobalVariablesDTO.m_client.AnnouncementStatusAsync(EnumsAnnouncement.Play);//MPU ya ses kanalı acması icin 
-                        //lolo.Wait();
+                      
+                        //GlobalVariablesDTO.m_client.AnnouncementStatusAsync(EnumsAnnouncement.Play);
 
-                        //Task.Run(async () =>
-                        //{
-                        //    await GlobalVariablesDTO.m_client.AnnouncementStatusAsync(EnumsAnnouncement.Play);
-                        //    // Buraya gelen kod, AnnouncementStatusAsync tamamlandığında devam eder.
-                        //}).Wait();
-                        GlobalVariablesDTO.m_client.AnnouncementStatusAsync(EnumsAnnouncement.Play);
+                        MPUListener.AnnouncementDTO announcementDTO = new MPUListener.AnnouncementDTO();
+
+                        if (GlobalVariablesDTO.metroName == "M3")
+                            announcementDTO.metroLines = EnumsMetroLines.M3;
+                        else
+                            announcementDTO.metroLines = EnumsMetroLines.M9;
+
+                        announcementDTO.status = EnumsAnnouncement.Play;
+                        announcementDTO.announcementType = EnumsAnnouncementType.Station;
+                        announcementDTO.stationName = ConvertStationNameStringToEnum(Stations.CurrentStation);
+
+                        GlobalVariablesDTO.m_client.AnnouncementStatusAsync(announcementDTO);
 
                     }
 
@@ -484,7 +470,7 @@ namespace M3_Ybs.BackGroundServices
 
                         Debug.WriteLine("Varısssss   ------  Anonsumuzzzzzz", GlobalVariablesDTO.metroName, Stations.CurrentStation, "İkinci   anonsuuu", Stations.CurrentStation.ToString());
 
-                        SendHttpPostAnons(GlobalVariablesDTO.metroName, "Station", Stations.CurrentStation, "varis.wav");
+                        //SendHttpPostAnons(GlobalVariablesDTO.metroName, "Station", Stations.CurrentStation, "varis.wav");
                         //SendHttpPostAnons("M3", "Station", Stations.CurrentStation, "varis.wav");
 
 
@@ -496,39 +482,15 @@ namespace M3_Ybs.BackGroundServices
                     //AnonsCounter2 = false;
 
                 }
-                else if (remainingDistance <= 15)
+
+                else if ((remainingDistance <= 50))
                 {
 
                     IsSendAnonsPost = true;
                     AnonsCounter = false;
                     AnonsCounter2 = false;
-                    //Debug.WriteLine($"İstasyona   geldikk :{remainingDistance},İstasyon Adııı :{currentStation.istasyonAdi}");
-
-                    //GlobalVariablesDTO.m_client.ResetDistanceCounterAsync(true);
-
-                    //GlobalVariablesDTO.Discounter = 0;
-                    //await SendHttpPostRequest(currentStation.istasyonAdi);
-
-                    //Debug.WriteLine("Trenin Hızı ---->" + M3_Ybs.GlobalVariablesDTO.TrenSpeed);
-                    //Debug.WriteLine("Sol Kapıların Release Durumu ---->" + M3_Ybs.GlobalVariablesDTO.All_LeftDoor_Release);
-                    //Debug.WriteLine("Sağ Kapıların Release Durumu ---->" + M3_Ybs.GlobalVariablesDTO.All_RightDoor_Release);
-                    //Debug.WriteLine("A1 Kapısı Durumu ---->" + M3_Ybs.GlobalVariablesDTO.A1_DoorStatus);
-                    //Debug.WriteLine("A2 Kapısı Durumu ---->" + M3_Ybs.GlobalVariablesDTO.A2_DoorStatus);
-                    //Debug.WriteLine("B1 Kapısı Durumu ---->" + M3_Ybs.GlobalVariablesDTO.B1_DoorStatus);
-                    //Debug.WriteLine("C1 Kapısı Durumu ---->" + M3_Ybs.GlobalVariablesDTO.C1_DoorStatus);
-
-                    //Burada Tren hızının 3km/s altında ve Kapıların Release ve A1,A2,B1,C1 kapılarının acık kapalı durumlarının kontrolü yapılıcaktır.
-                    //if (M3_Ybs.GlobalVariablesDTO.TrenSpeed < 30 && M3_Ybs.GlobalVariablesDTO.All_LeftDoor_Release == true || M3_Ybs.GlobalVariablesDTO.All_RightDoor_Release == true && M3_Ybs.GlobalVariablesDTO.A1_DoorStatus == true || M3_Ybs.GlobalVariablesDTO.A2_DoorStatus == true || M3_Ybs.GlobalVariablesDTO.B1_DoorStatus == true || M3_Ybs.GlobalVariablesDTO.C1_DoorStatus == true)
-                    //{
-                    //    ResetTakoValue();// Burada tako degeri sıfırlanıyor. TCMS  e burda tako sıfırla tetigi göndermek gerekiyor
-
-                    //}
-
-                    //Depo sahasında test icin
-
-                    //if (M3_Ybs.GlobalVariablesDTO.A1_DoorStatus == true)
-                    //{ 
-                    if (M3_Ybs.GlobalVariablesDTO.TrenSpeed < 30 && M3_Ybs.GlobalVariablesDTO.All_LeftDoor_Release == true || M3_Ybs.GlobalVariablesDTO.All_RightDoor_Release == true && M3_Ybs.GlobalVariablesDTO.A1_DoorStatus == true || M3_Ybs.GlobalVariablesDTO.A2_DoorStatus == true || M3_Ybs.GlobalVariablesDTO.B1_DoorStatus == true || M3_Ybs.GlobalVariablesDTO.C1_DoorStatus == true)
+ 
+                    if ((M3_Ybs.GlobalVariablesDTO.TrenSpeed < 30) && (M3_Ybs.GlobalVariablesDTO.All_LeftDoor_Release == true || M3_Ybs.GlobalVariablesDTO.All_RightDoor_Release == true) && (M3_Ybs.GlobalVariablesDTO.A1_DoorStatus == true || M3_Ybs.GlobalVariablesDTO.A2_DoorStatus == true || M3_Ybs.GlobalVariablesDTO.B1_DoorStatus == true || M3_Ybs.GlobalVariablesDTO.C1_DoorStatus == true))
                     {
                         //ResetTakoValue();
                         Task.Run(async () =>
@@ -538,77 +500,94 @@ namespace M3_Ybs.BackGroundServices
                         }).Wait();
 
                         GlobalVariablesDTO.Discounter = 0;
+
                         Debug.WriteLine($"Tako değeri sıfırlandı: {GlobalVariablesDTO.Discounter}");
 
 
                         // Burada şuanki istasyonu bir sonraki istasyon olarak güncelle
-                        //Stations.CurrentStation = nextStation.istasyonAdi;
+                        Stations.CurrentStation = nextStation.istasyonAdi;
 
-                        ////currentStation = Stations.CurrentStation;
+                        // nextStation'ı güncelleyelim (nextStation'dan bir sonraki istasyon)
 
-                        //IsAtNextStation(currentStation, nextStation, takoValue);
-                        var lastItem = GlobalVariablesDTO.StationList.Last();//Listenin en son elemanı
+                        currentStation.istasyonAdi = nextStation.istasyonAdi;
+                        currentStation.istasyonBoyT1 = nextStation.istasyonBoyT1;
+                        currentStation.istasyonBoyT2 = nextStation.istasyonBoyT2;
+                        currentStation.id = nextStation.id;
+                        currentStation.istasyonMesafeT1 = (int.Parse(nextStation.istasyonMesafeT1)+remainingDistance).ToString();
+                        currentStation.istasyonMesafeT2 = (int.Parse(nextStation.istasyonMesafeT2) + remainingDistance).ToString();
 
-                        if (Stations.CurrentStation == lastItem.istasyonAdi)
+
+                        Debug.WriteLine(currentStation.istasyonMesafeT1, currentStation.istasyonMesafeT2);
+
+
+                        int nextStationIndexx = GlobalVariablesDTO.StationList.FindLastIndex(station => station.istasyonAdi == currentStation.istasyonAdi) + 1;
+
+                        if (nextStationIndexx < GlobalVariablesDTO.StationList.Count)
                         {
-                            // Son istasyona gelindiğinde ilgili işlemleri yapabilirsiniz.
-                            Debug.WriteLine("Rotalar bitttttiiiiiiiii");
-                            //Stations.CurrentStation = "SON DURAK";
-                            //GlobalVariablesDTO.StationList.ForEach(station => station.istasyonAdi = "SON DURAK"); // Tüm istasyon adlarını temizle
-                            GlobalVariablesDTO.StationList.Clear();
-                            stationData.Clear();
-                            Debug.WriteLine("Kurulan Rotalar Temizlendiiiii---- Yeni Rota bekleniyorr");
+                            Stations s = new Stations();
 
-                            GlobalVariablesDTO.Discounter = 0;
-                            isLastStationReached = true; // Son istasyona ulaşıldığını işaretle
-                            while (Stations.IsRouteChanged == false)
-                            {
-                                Thread.Sleep(1000);// Yeni rota kurulana kadar bekle
-                                Debug.WriteLine("***YENİ ROTA BEKLENİYOR***");
-                                SendHttpPostRequest();//tekrar rotayı kontrol ett
+                            s = GlobalVariablesDTO.StationList[nextStationIndexx];
 
 
-                                //Eger bu sürede TCMS ile baglantı sorunu olursa tekrar baglantı kuralım
-
-                                if (GlobalVariablesDTO.m_client.State == CommunicationState.Closed || GlobalVariablesDTO.m_client.State == CommunicationState.Faulted)
-                                {
-                                    Logging.WriteLog(DateTime.Now.ToString(), "Message", "StackTrace", "TargetSite.ToString()", "Tcms ile Ag baglantı koptu Tekrar baglanmayacalsıyor");
-                                    Debug.WriteLine("***********---------HATATTTTATAAAAAAAA----------***************");
-                                    //Thread.Sleep(1000);
-                                    Debug.WriteLine("***********---------TEKRAR BAGLANMAYA CALISIYOR----------***************");
-                                    GlobalVariablesDTO.m_client.UnsubscribeAsync();
-                                    GlobalVariablesDTO.m_client.Abort();
+                            nextStation.id = s.id;
+                            nextStation.istasyonAdi = s.istasyonAdi;
+                            nextStation.istasyonBoyT1 = s.istasyonBoyT1;
+                            nextStation.istasyonBoyT2 = s.istasyonBoyT2;
+                           
+                            nextStation.istasyonMesafeT1 =s.istasyonMesafeT1;
+                            nextStation.istasyonMesafeT2 =s.istasyonMesafeT2;
 
 
-                                    InstanceContext context = new InstanceContext(new TCMSConnectionService());
 
-                                    //GlobalVariablesDTO.m_client.InnerChannel.OperationTimeout = TimeSpan.MaxValue;//Baglantı oldugu sürece devam eder
-
-                                    GlobalVariablesDTO.m_client = new MPUListener.M3YBSCommunicationClient(context);
-
-                                    GlobalVariablesDTO.m_client?.SubscribeAsync();
-
-                                    IsConnected = true;
-
-                                    Debug.WriteLine("***********---------TEKRAR BAGLANTI SAGLANDI----------***************");
-
-                                }
-
-
-                            }
-
-
-                        }
-                        else
-                        {
-                            Stations.CurrentStation = nextStation.istasyonAdi;
-
-                            //currentStation = nextStation;
+                            
 
                             Debug.WriteLine("***********---------Sonraki duraga gidicekkk----------***************");
                             IsAtNextStation(currentStation, nextStation, takoValue);
+
                         }
-                        //SendHttpPostRequest();//tekrar rotayı kontrol ett
+
+                        else
+                        {
+                            // Eğer bir sonraki istasyon yoksa, burada gerekli işlemleri gerçekleştirebilirsiniz.
+                            // Örneğin, rota sona erdiği için bir başka rota kurma veya ilgili değişkenleri sıfırlama gibi.
+                            var lastItem = GlobalVariablesDTO.StationList.Last();//Listenin en son elemanı
+
+                            if (Stations.CurrentStation == lastItem.istasyonAdi)
+                            {
+                                // Son istasyona gelindiğinde ilgili işlemleri yapabilirsiniz.
+                                Debug.WriteLine("Rotalar bitttttiiiiiiiii");
+
+                                GlobalVariablesDTO.StationList.Clear();
+                                stationData.Clear();
+                                Debug.WriteLine("Kurulan Rotalar Temizlendiiiii---- Yeni Rota bekleniyorr");
+
+                                GlobalVariablesDTO.Discounter = 0;
+                                isLastStationReached = true; // Son istasyona ulaşıldığını işaretle
+                                while (Stations.IsRouteChanged == false)
+                                {
+                                    Thread.Sleep(1000);// Yeni rota kurulana kadar bekle
+                                    Debug.WriteLine("***YENİ ROTA BEKLENİYOR***");
+                                    SendHttpPostRequest();//tekrar rotayı kontrol ett
+
+
+                                    //Eger bu sürede TCMS ile baglantı sorunu olursa tekrar baglantı kuralım
+                                    CheckConnection();
+                                
+
+
+                                }
+
+                               
+                            }
+
+                            GlobalVariablesDTO.StationList.Clear();
+                            stationData.Clear();
+                            stationData = ReadJsonData();//Yeni rotayı oku
+
+                            IsAtNextStation(currentStation, nextStation, takoValue);
+
+                        }
+                       
 
                     }
 
@@ -623,7 +602,7 @@ namespace M3_Ybs.BackGroundServices
                         if (!string.IsNullOrEmpty(GlobalVariablesDTO.Discounter.ToString()))
                         {
                             Debug.WriteLine($"Tako değeri geldi :{GlobalVariablesDTO.Discounter.ToString()}");
-                            //remainingDistance = ((currentDistance + nextDistance) - (GlobalVariablesDTO.proxy.ICountDist()));
+                           
 
                             break;
                         }
@@ -632,10 +611,12 @@ namespace M3_Ybs.BackGroundServices
 
                 }
 
+                SendHttpPostRequest();//tekrar rotayı kontrol ett
 
 
                 Debug.WriteLine($"Gelen TAko Degerii------- :{GlobalVariablesDTO.Discounter.ToString()}");
                 Debug.WriteLine($"Distancee degeri :{remainingDistance}");
+                Debug.WriteLine("Trenin Hızı ---->" + M3_Ybs.GlobalVariablesDTO.TrenSpeed);
                 //IsConnectedTcms = true;
 
 
@@ -658,23 +639,36 @@ namespace M3_Ybs.BackGroundServices
 
 
 
+        //TCMS ile baglantı kontrolünü saglayan metot
+        #region  TCMS ile baglantı kontrolünü yapan metot
+        private static void CheckConnection()
+        {
+            if (GlobalVariablesDTO.m_client.State == CommunicationState.Closed || GlobalVariablesDTO.m_client.State == CommunicationState.Faulted)
+            {
+                Logging.WriteLog(DateTime.Now.ToString(), "Message", "StackTrace", "TargetSite.ToString()", "Tcms ile Ag baglantı koptu Tekrar baglanmayacalsıyor");
+                Debug.WriteLine("***********---------HATATTTTATAAAAAAAA----------***************");
+                //Thread.Sleep(1000);
+                Debug.WriteLine("***********---------TEKRAR BAGLANMAYA CALISIYOR----------***************");
+                GlobalVariablesDTO.m_client.UnsubscribeAsync();
+                GlobalVariablesDTO.m_client.Abort();
 
-        private bool CheckConnection()
-        {//TCMS ile baglantı kontrolünü saglayan metot
-            try
-            {
-                using (var client = new HttpClient())
-                {
-                    var response = client.GetAsync("net.tcp://192.168.1.5:8733/M3YBSCommunication/M3YBSCommunication");
-                    return response.IsCompleted;
-                }
+
+                InstanceContext context = new InstanceContext(new TCMSConnectionService());
+
+                //GlobalVariablesDTO.m_client.InnerChannel.OperationTimeout = TimeSpan.MaxValue;//Baglantı oldugu sürece devam eder
+
+                GlobalVariablesDTO.m_client = new MPUListener.M3YBSCommunicationClient(context);
+
+                GlobalVariablesDTO.m_client?.SubscribeAsync();
+
+                IsConnected = true;
+
+                Debug.WriteLine("***********---------TEKRAR BAGLANTI SAGLANDI----------***************");
+
             }
-            catch (Exception)
-            {
-                return false;
-            }
-            return true;
         }
+
+        #endregion
 
         #region   Tako degeri Resetleyen fonksiyon
         public static void ResetTakoValue()
@@ -804,6 +798,8 @@ namespace M3_Ybs.BackGroundServices
         #endregion
 
 
+
+        #region   Parametrik mesafeleri Json dan okuyan metot
         public static void ReadJsonTakoValue() //Json dan veri okuma metodu
         {
             //SendHttpPostRequest();
@@ -822,12 +818,192 @@ namespace M3_Ybs.BackGroundServices
                 GlobalVariablesDTO.takoKatSayisi = double.Parse(takoKatSayisiDegeri, NumberStyles.Any, CultureInfo.InvariantCulture);
                 GlobalVariablesDTO.istasyondanCıkısMesafesi = int.Parse(istasyondanCıkısMesafesiDegeri);
                 GlobalVariablesDTO.istasyonaKalanMesafe = int.Parse(istasyonaKalanMesafeDegeri);
+            }
+        }
+        #endregion
 
 
+
+        #region   İstasyon isimlerini dönüstüren metot
+        public static MPUListener.EnumsStationName ConvertStationNameStringToEnum(string stationName)
+        {
+            MPUListener.EnumsStationName stationNameEnum = MPUListener.EnumsStationName.İlkyuva;
+
+            switch (stationName)
+            {
+                case "Kayaşehir Merkez":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.KayaşehirMerkez;
+                        break;
+                    }
+                case "Toplu Konutlar":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.TopluKonutlar;
+                        break;
+                    }
+                case "Şehir Hastanesi":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.ŞehirHastanesi;
+                        break;
+                    }
+                case "Onurkent":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.Onurkent;
+                        break;
+                    }
+                case "Başakşehir - Metrokent":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.BaşakşehirMetrokent;
+                        break;
+                    }
+                case "Başak Konutları":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.BaşakKonutları;
+                        break;
+                    }
+                case "Siteler":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.Siteler;
+                        break;
+                    }
+                case "Turgut Özal":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.TurgutÖzal;
+                        break;
+                    }
+                case "İkitelli Sanayi":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.İkitelliSanayi;
+                        break;
+                    }
+                case "İSTOÇ":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.İSTOÇ;
+                        break;
+                    }
+                case "Mahmutbey":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.Mahmutbey;
+                        break;
+                    }
+                case "Yenimahalle":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.Yenimahalle;
+                        break;
+                    }
+                case "Kirazlı - Bağcılar":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.Kirazlı;
+                        break;
+                    }
+                case "Molla Gürani":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.MollaGürani;
+                        break;
+                    }
+                case "Yıldıztepe":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.Yıldıztepe;
+                        break;
+                    }
+                case "İlkyuva":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.İlkyuva;
+                        break;
+                    }
+                case "Haznedar":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.Haznedar;
+                        break;
+                    }
+                case "Bakırköy - İncirli":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.Bakırköyİncirli;
+                        break;
+                    }
+                case "Özgürlük Meydanı":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.ÖzgürlükMeydanı;
+                        break;
+                    }
+                case "Bakırköy İDO":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.BakırköyİDO;
+                        break;
+                    }
+                case "Ataköy":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.Ataköy;
+                        break;
+                    }
+                case "Yenibosna":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.Yenibosna;
+                        break;
+                    }
+                case "ÇobançeşmeKuyumcukent":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.ÇobançeşmeKuyumcukent;
+                        break;
+                    }
+                case "İhlasYuva":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.İhlasYuva;
+                        break;
+                    }
+                case "DoğuSanayi":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.DoğuSanayi;
+                        break;
+                    }
+                case "MimarSinan":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.MimarSinan;
+                        break;
+                    }
+                case "OnBeşTemmuz":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.OnBeşTemmuz;
+                        break;
+                    }
+                case "HalkalıCaddesi":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.HalkalıCaddesi;
+                        break;
+                    }
+                case "AtatürkMahallesi":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.AtatürkMahallesi;
+                        break;
+                    }
+                case "Bahariye":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.Bahariye;
+                        break;
+                    }
+
+                case "MASKO":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.MASKO;
+                        break;
+                    }
+
+                case "ZiyaGökalpMahallesi":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.ZiyaGökalpMahallesi;
+                        break;
+                    }
+                case "Olimpiyat":
+                    {
+                        stationNameEnum = MPUListener.EnumsStationName.Olimpiyat;
+                        break;
+                    }
             }
 
+            return stationNameEnum;
         }
 
+        #endregion
 
     }
 }
